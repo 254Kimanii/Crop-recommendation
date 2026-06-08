@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Recommendation System</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Crop Recommendation Dashboard</h1>
+            <p>Enter your soil and climate data to receive a crop recommendation and yield forecast.</p>
+        </header>
+
+        <section class="grid">
+            <div class="panel panel-form">
+                <h2>Input Data</h2>
+                {% if error %}
+                    <div class="alert">{{ error }}</div>
+                {% endif %}
+                <form method="post">
+                    <label for="soil_type">Soil type</label>
+                    <select id="soil_type" name="soil_type">
+                        {% for soil in soil_types %}
+                            <option value="{{ soil }}" {% if selected.soil_type == soil %}selected{% endif %}>{{ soil.capitalize() }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="rainfall">Rainfall (mm)</label>
+                    <input id="rainfall" name="rainfall" type="number" step="1" min="0" value="{{ selected.rainfall }}" required>
+
+                    <label for="temperature">Temperature (°C)</label>
+                    <input id="temperature" name="temperature" type="number" step="0.1" min="-10" max="50" value="{{ selected.temperature }}" required>
+
+                    <label for="season">Season</label>
+                    <select id="season" name="season">
+                        {% for season in seasons %}
+                            <option value="{{ season }}" {% if selected.season == season %}selected{% endif %}>{{ season.replace('_', ' ').capitalize() }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label for="fertilizer">Fertilizer type</label>
+                    <select id="fertilizer" name="fertilizer">
+                        {% for fertilizer in fertilizers %}
+                            <option value="{{ fertilizer }}" {% if selected.fertilizer == fertilizer %}selected{% endif %}>{{ fertilizer.capitalize() }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+
+            <div class="panel panel-result">
+                <h2>Recommendation Result</h2>
+                {% if result %}
+                    <div class="result-card">
+                        <p><strong>Recommended crop:</strong> {{ result.crop.capitalize() }}</p>
+                        <p><strong>Expected yield category:</strong> {{ result.yield.capitalize() }}</p>
+                        <p><strong>Explanation:</strong> {{ result.explanation }}</p>
+                        <div class="trace">
+                            <h3>Explained decision</h3>
+                            <ol>
+                                {% for step in result.trace %}
+                                    <li>{{ step }}</li>
+                                {% endfor %}
+                            </ol>
+                        </div>
+                    </div>
+                {% else %}
+                    <p class="placeholder">Submit the form to see a crop recommendation.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <section class="panel panel-history">
+            <h2>Recent Recommendations</h2>
+            {% if history %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Crop</th>
+                            <th>Yield</th>
+                            <th>Soil</th>
+                            <th>Rainfall</th>
+                            <th>Season</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in history %}
+                            <tr>
+                                <td>{{ item.crop.capitalize() }}</td>
+                                <td>{{ item.yield.capitalize() }}</td>
+                                <td>{{ item.soil_type.capitalize() }}</td>
+                                <td>{{ item.rainfall }}</td>
+                                <td>{{ item.season.replace('_', ' ').capitalize() }}</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            {% else %}
+                <p class="placeholder">Your previous recommendations will appear here.</p>
+            {% endif %}
+        </section>
+    </div>
+</body>
+</html>
